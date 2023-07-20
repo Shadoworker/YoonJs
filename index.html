@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoon JS - Main</title>
+  <style>
+    body {
+      margin: 0 auto;
+    }
+
+    .draggable-container {
+      position: relative;
+      width: 400px;
+      height: 300px;
+      border: 1px solid #ccc;
+    }
+
+    .draggable-item {
+      position: absolute;
+      background-color: #dca5a5;
+      padding: 10px;
+      cursor: move;
+      user-select: none;
+    }
+
+    .guide-line {
+      position: absolute;
+      border-left: 1px dashed #8080808f;
+      border-right: 1px dashed #8080808f;
+      border-top: 1px dashed #8080808f;
+      border-bottom: 1px dashed #8080808f;
+      pointer-events: none;
+    }
+
+    .guide-distance {
+      position: absolute;
+      background-color: red;
+      color: white;
+      padding: 2px 5px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="draggable-container">
+    <div class="draggable-item" style="left: 50px; top: 50px;">Element 1</div>
+    <div class="draggable-item" style="left: 200px; top: 100px;">Element 2</div>
+    <div class="draggable-item" style="left: 150px; top: 200px;">Element 3</div>
+    <!-- Add more draggable items here -->
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const draggableItems = document.querySelectorAll(".draggable-item");
+      const draggableContainer = document.querySelector(".draggable-container");
+      let activeItem = null;
+      let guides = [];
+      const snapThreshold = 5; // Threshold for snapping to guides
+
+      draggableItems.forEach((item) => {
+        item.addEventListener("mousedown", startDrag);
+        item.addEventListener("mouseup", stopDrag);
+      });
+
+      function startDrag(e) {
+        activeItem = e.target;
+        document.addEventListener("mousemove", drag);
+      }
+
+      function stopDrag() {
+        activeItem = null;
+        document.removeEventListener("mousemove", drag);
+        removeGuides();
+      }
+
+      function drag(e) {
+        if (activeItem) {
+          const { clientX, clientY } = e;
+          activeItem.style.left = clientX - activeItem.offsetWidth / 2 + "px";
+          activeItem.style.top = clientY - activeItem.offsetHeight / 2 + "px";
+
+          removeGuides();
+          showGuides();
+          snapElement();
+        }
+      }
+
+      function showGuides() {
+        const activeBounds = activeItem.getBoundingClientRect();
+        const centerBounds = {
+          left: activeBounds.left + activeBounds.width / 2,
+          top: activeBounds.top + activeBounds.height / 2,
+        };
+
+        activeBounds.top -= 1;
+        activeBounds.bottom -= 1;
+        centerBounds.top -= 1;
+
+        draggableItems.forEach((item) => {
+          if (item !== activeItem) {
+            const itemBounds = item.getBoundingClientRect();
+            const centerItem = {
+              left: itemBounds.left + itemBounds.width / 2,
+              top: itemBounds.top + itemBounds.height / 2,
+            };
+
+            itemBounds.top -= 1;
+            itemBounds.bottom -= 1;
+            centerItem.top -= 1;
+
+            if (Math.abs(activeBounds.left - itemBounds.left) < snapThreshold) {
+              showVerticalGuide(itemBounds.left, itemBounds.top, itemBounds.height, false, 'l');
+            }
+
+            if (Math.abs(activeBounds.left - itemBounds.right) < snapThreshold) {
+              showVerticalGuide(itemBounds.right, itemBounds.top, itemBounds.width, false, 'l');
+                // console.log('right side')
+            }
+
+            if (Math.abs(activeBounds.right - itemBounds.right) < snapThreshold) {
+              showVerticalGuide(itemBounds.right, itemBounds.top, itemBounds.height, false, 'r');
+            }
+
+
+            if (Math.abs(activeBounds.right - itemBounds.left) < snapThreshold) {
+              showVerticalGuide(itemBounds.left, itemBounds.top, itemBounds.height, false, 'r');
+              
+                // console.log('left side')
+            }
+
+            if (Math.abs(activeBounds.top - itemBounds.top) < snapThreshold) {
+              showHorizontalGuide(itemBounds.top, itemBounds.left, itemBounds.width, false, 'n');
+            }
+
+            if (Math.abs(activeBounds.bottom - itemBounds.bottom) < snapThreshold) {
+              showHorizontalGuide(itemBounds.bottom, itemBounds.left, -itemBounds.width, false, 'n');
+            }
+
+            if (Math.abs(centerBounds.left - centerItem.left) < snapThreshold) {
+              showVerticalGuide(centerItem.left, centerItem.top, itemBounds.height/2, false, 'n');
+            }
+
+            if (Math.abs(centerBounds.top - centerItem.top) < snapThreshold) {
+              showHorizontalGuide(centerItem.top, centerItem.left, itemBounds.width/2, false, 'n');
+            }
+          }
+        });
+
+        if (Math.abs(centerBounds.left - draggableContainer.clientWidth / 2) < snapThreshold) {
+          showVerticalGuide(draggableContainer.clientWidth / 2, (draggableContainer.clientHeight / 2), (draggableContainer.clientHeight / 2), true, 'n');
+        }
+
+        if (Math.abs(centerBounds.top - draggableContainer.clientHeight / 2) < snapThreshold) {
+          showHorizontalGuide(draggableContainer.clientHeight / 2, draggableContainer.clientWidth / 2, (draggableContainer.clientWidth / 2), true, 'n');
+        }
+      }
+
+      function showVerticalGuide(x, targetTop, size, isContainer = false, side = 'n') {
+        const guide = createGuideLine(x, 0, draggableContainer.clientHeight, isContainer, side);
+        guides.push(guide);
+
+        const distance = Math.abs(targetTop - activeItem.offsetTop - size);
+        displayDistance(x, targetTop, distance);
+      }
+
+      function showHorizontalGuide(y, targetLeft, size, isContainer = false, side = 'n') {
+        const guide = createGuideLine(0, y, draggableContainer.clientWidth, isContainer, side);
+        guides.push(guide);
+
+        const distance = Math.abs(targetLeft - activeItem.offsetLeft - size);
+        displayDistance(targetLeft, y, (distance));
+      }
+
+      function createGuideLine(x, y, length, isContainer = false, side = 'n') {
+        const guide = document.createElement("div");
+        guide.classList.add("guide-line");
+
+        if (x === 0) {
+          guide.style.width = length + "px";
+        } else {
+          guide.style.height = "100%";
+        }
+
+        if (isContainer) {
+          guide.style.borderColor = "#ff00007b";
+        }
+
+        if(side == 'l')
+            guide.style.borderColor = "#00ff007b";
+
+        if(side == 'r')
+        guide.style.borderColor = "#0000ff7b";
+
+
+        guide.style.left = x + "px";
+        guide.style.top = y + "px";
+        draggableContainer.appendChild(guide);
+        return guide;
+      }
+
+      function removeGuides() {
+        guides.forEach((guide) => guide.remove());
+        guides.length = 0;
+        const distanceElements = document.querySelectorAll(".guide-distance");
+        distanceElements.forEach((el) => el.remove());
+      }
+
+      function snapElement() {
+        const activeBounds = activeItem.getBoundingClientRect();
+        const centerBounds = {
+          left: activeBounds.left + activeBounds.width / 2,
+          top: activeBounds.top + activeBounds.height / 2,
+        };
+
+        draggableItems.forEach((item) => {
+          if (item !== activeItem) {
+            snapOnElement(item, activeBounds, centerBounds);
+          }
+        });
+
+        snapOnElement(draggableContainer, activeBounds, centerBounds);
+      }
+
+      function snapOnElement(_element, _activeBounds, _centerBounds) {
+        const itemBounds = _element.getBoundingClientRect();
+        const centerItem = {
+          left: itemBounds.left + itemBounds.width / 2,
+          top: itemBounds.top + itemBounds.height / 2,
+        };
+
+        itemBounds.top -= 1;
+        itemBounds.bottom -= 1;
+        centerItem.top -= 1;
+
+        if (Math.abs(_activeBounds.left - itemBounds.left) < snapThreshold) {
+          activeItem.style.left = itemBounds.left + "px";
+        }
+
+        if (Math.abs(_activeBounds.right - itemBounds.right) < snapThreshold) {
+          activeItem.style.left = itemBounds.right - _activeBounds.width + "px";
+        }
+
+        if (Math.abs(_activeBounds.top - itemBounds.top) < snapThreshold) {
+          activeItem.style.top = itemBounds.top + "px";
+        }
+
+        if (Math.abs(_activeBounds.bottom - itemBounds.bottom) < snapThreshold) {
+          activeItem.style.top = itemBounds.bottom - _activeBounds.height + "px";
+        }
+
+        if (Math.abs(_centerBounds.left - centerItem.left) < snapThreshold) {
+          activeItem.style.left = centerItem.left - _activeBounds.width / 2 + "px";
+        }
+
+        if (Math.abs(_centerBounds.top - centerItem.top) < snapThreshold) {
+          activeItem.style.top = centerItem.top - _activeBounds.height / 2 + "px";
+        }
+      }
+
+      function displayDistance(targetLeft, targetTop, distance) {
+        const distanceEl = document.createElement("div");
+        distanceEl.classList.add("guide-distance");
+        distanceEl.style.left = `${targetLeft}px`;
+        distanceEl.style.top = `${targetTop}px`;
+        distanceEl.textContent = distance.toFixed(1);
+        draggableContainer.appendChild(distanceEl);
+      }
+    });
+  </script>
+</body>
+</html>
