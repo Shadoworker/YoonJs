@@ -26,16 +26,16 @@
 
     .guide-line {
       position: absolute;
-      border-left: 1px dashed #8080808f;
-      border-right: 1px dashed #8080808f;
-      border-top: 1px dashed #8080808f;
-      border-bottom: 1px dashed #8080808f;
+      border-left: 1px dashed #9E41BE;
+      border-right: 1px dashed #9E41BE;
+      border-top: 1px dashed #9E41BE;
+      border-bottom: 1px dashed #9E41BE;
       pointer-events: none;
     }
 
     .guide-distance {
       position: absolute;
-      background-color: red;
+      background-color: #9E41BE;
       color: white;
       padding: 2px 5px;
       font-size: 12px;
@@ -45,8 +45,8 @@
 <body>
   <div class="draggable-container">
     <div class="draggable-item" style="left: 50px; top: 50px;">Element 1</div>
-    <div class="draggable-item" style="left: 200px; top: 100px;">Element 2</div>
-    <div class="draggable-item" style=" padding: 15px 20px; left: 150px; top: 200px;">Element 3</div>
+    <div class="draggable-item" style="left: 220px; top: 100px;">Element 2</div>
+    <div class="draggable-item" style=" padding: 15px 20px; left: 170px; top: 200px;">Element 3</div>
     <!-- Add more draggable items here -->
   </div>
 
@@ -56,7 +56,7 @@
       const draggableContainer = document.querySelector(".draggable-container");
       let activeItem = null;
       let guides = [];
-      const snapThreshold = 5; // Threshold for snapping to guides
+      const snapThreshold = 4; // Threshold for snapping to guides
 
       let allowSnap = true;
 
@@ -83,6 +83,7 @@
           activeItem.style.top = clientY - activeItem.offsetHeight / 2 + "px";
 
           removeGuides();
+          
           showGuides();
           // snapElement();
         }
@@ -113,118 +114,239 @@
             itemBounds.bottom -= 1;
             centerItem.top -= 1;
 
+            // -----------------------------LEFT / LEFT - LEFT / RIGHT --------------------------------------
+
             if (Math.abs(activeBounds.left - itemBounds.left) < snapThreshold) {
-              showVerticalGuide(itemBounds.left, itemBounds.top, itemBounds.height, false, 'green', 0.25);
+              
+              showVerticalGuide(itemBounds.left, itemBounds.top, itemBounds.height);
               
               var snapPos = itemBounds.left;
               snapAt('h', snapPos);
 
             }
             if (Math.abs(activeBounds.left - itemBounds.right) < snapThreshold) {
-              showVerticalGuide(itemBounds.right, itemBounds.top, itemBounds.width, false, 'green');
+              
+              showVerticalGuide(itemBounds.right, itemBounds.top, itemBounds.width);
             
               var snapPos = itemBounds.right;
               snapAt('h', snapPos);
 
             }
 
+            // --------------------------------------LEFT / CENTER -------------------------------------------
+
+            if (Math.abs(activeBounds.left - centerItem.left) < snapThreshold) {
+              
+              showVerticalGuide(centerItem.left, activeBounds.top, itemBounds.height);
+              
+              var snapPos = centerItem.left;
+              snapAt('h', snapPos);
+            }
+           
+            // --------------------------------------CENTER / LEFT -------------------------------------------
+
+            if (Math.abs(centerBounds.left - itemBounds.left) < snapThreshold) {
+              
+              showVerticalGuide(itemBounds.left, activeBounds.top, itemBounds.height);
+              
+              var snapPos = (itemBounds.left - (activeBounds.width/2));
+              snapAt('h', snapPos);
+            }
+
+            // --------------------------------------RIGHT / CENTER -------------------------------------------
+
+            if (Math.abs(activeBounds.right - centerItem.left) < snapThreshold) {
+                  
+              showVerticalGuide(centerItem.left, activeBounds.top, itemBounds.height);
+                  
+                  var snapPos = (centerItem.left - activeBounds.width);
+                  snapAt('h', snapPos);
+                }
+
+
+            // --------------------------------------CENTER / RIGHT -------------------------------------------
+
+            if (Math.abs(centerBounds.left - itemBounds.right) < snapThreshold) {
+                
+              showVerticalGuide(itemBounds.right, activeBounds.top, itemBounds.height);
+                
+                var snapPos = (itemBounds.right - (activeBounds.width/2));
+                snapAt('h', snapPos);
+              }
+
+            // -----------------------------RIGHT / RIGHT - RIGHT / LEFT --------------------------------------
+
             if (Math.abs(activeBounds.right - itemBounds.right) < snapThreshold) {
-              showVerticalGuide(itemBounds.right, itemBounds.top, itemBounds.height, false, 'blue', 0.25);
+              
+              showVerticalGuide(itemBounds.right, itemBounds.top, itemBounds.height);
                
               var snapPos = (itemBounds.right-activeBounds.width);
               snapAt('h', snapPos);
 
             }
             if (Math.abs(activeBounds.right - itemBounds.left) < snapThreshold) {
-              showVerticalGuide(itemBounds.left, itemBounds.top, itemBounds.height, false, 'blue');
+              
+              showVerticalGuide(itemBounds.left, itemBounds.top, itemBounds.height);
               
               var snapPos = (itemBounds.right - (itemBounds.width+activeBounds.width));
               snapAt('h', snapPos);
 
             }
 
+            // -----------------------------TOP / TOP - TOP / BOTTOM --------------------------------------
 
             if (Math.abs(activeBounds.top - itemBounds.top) < snapThreshold) {
-              showHorizontalGuide(itemBounds.top, itemBounds.left, itemBounds.width, false, 'indigo', 0.25);
+              
+              showHorizontalGuide(itemBounds.top, itemBounds.left, itemBounds.width);
               
               var snapPos = itemBounds.top;
               snapAt('v', snapPos);
               
             }
             if (Math.abs(activeBounds.top - itemBounds.bottom) < snapThreshold) {
-              showHorizontalGuide(itemBounds.bottom, itemBounds.left, itemBounds.width, false, 'indigo');
+              
+              showHorizontalGuide(itemBounds.bottom, itemBounds.left, itemBounds.width);
               
               var snapPos = itemBounds.bottom;
               snapAt('v', snapPos);
             }
 
+            // -----------------------------BOTTOM / BOTTOM - BOTTOM / TOP --------------------------------------
+
             if (Math.abs(activeBounds.bottom - itemBounds.bottom) < snapThreshold) {
-              showHorizontalGuide(itemBounds.bottom, itemBounds.left, -itemBounds.width, false, 'black', 0.25);
+              
+              showHorizontalGuide(itemBounds.bottom, itemBounds.left, -itemBounds.width);
 
               var snapPos = (itemBounds.bottom - itemBounds.height + Math.abs(itemBounds.height-activeBounds.height));
               snapAt('v', snapPos);
-
             }
             if (Math.abs(activeBounds.bottom - itemBounds.top) < snapThreshold) {
-              showHorizontalGuide(itemBounds.top, itemBounds.top, -itemBounds.width, false, 'black');
+              
+              showHorizontalGuide(itemBounds.top, itemBounds.top, -itemBounds.width);
 
               var snapPos = (itemBounds.top - itemBounds.height + Math.abs(itemBounds.height-activeBounds.height));
               snapAt('v', snapPos);
             }
 
-            if (Math.abs(centerBounds.left - centerItem.left) < snapThreshold) {
-              showVerticalGuide(centerItem.left, centerItem.top, itemBounds.height/2, false, 'red', 0.25);
+            // -----------------------------CENTER LEFT / CENTER LEFT - CENTER LEFT / CENTER RIGHT ------------------------------------------
+
+            if ((Math.abs(centerBounds.left - centerItem.left) < snapThreshold) && (centerBounds.top < centerItem.top)) //center by top
+            {
+              
+              showVerticalGuide(centerItem.left, centerItem.top, itemBounds.height/2);
               
               var snapPos = (centerItem.left - (activeBounds.width/2));
               snapAt('h', snapPos);
             }
-            // if (Math.abs(centerBounds.left - centerItem.right) < snapThreshold) {
-            //   showVerticalGuide(centerItem.right, centerItem.bottom, itemBounds.height/2, false, 'blue');
 
-            //   var snapPos = (centerItem.left - (activeBounds.width/2));
-            //   snapAt('h', snapPos);
-            // }
+            if ((Math.abs(centerBounds.left - centerItem.left) < snapThreshold) && (centerBounds.top > centerItem.bottom)) //center by bottom
+            {
+              
+              showVerticalGuide(centerItem.left, centerItem.top, itemBounds.height/2);
+              
+              var snapPos = (centerItem.left - (activeBounds.width/2));
+              snapAt('h', snapPos);
+            }
 
-            if (Math.abs(centerBounds.top - centerItem.top) < snapThreshold) {
-              showHorizontalGuide(centerItem.top, centerItem.left, itemBounds.width/2, false, 'orange');
+            // -----------------------------CENTER TOP / CENTER TOP - CENTER TOP / CENTER BOTTOM --------------------------------------
+
+            if ((Math.abs(centerBounds.top - centerItem.top) < snapThreshold) && (centerBounds.left < centerItem.left)) {
+              
+              showHorizontalGuide(centerItem.top, centerItem.left, itemBounds.width/2);
               
               var snapPos = (centerItem.top - (activeBounds.height/2));
               snapAt('v', snapPos);
-
-            }
-            if (Math.abs(centerBounds.top - centerItem.bottom) < snapThreshold) {
-              showHorizontalGuide(centerItem.bottom, centerItem.left, itemBounds.width/2, false, 'orange');
             }
 
+            if ((Math.abs(centerBounds.top - centerItem.top) < snapThreshold) && (centerBounds.left > (centerItem.left+itemBounds.width))) {
+              
+              showHorizontalGuide(centerItem.top, centerItem.left, itemBounds.width/2);
+              
+              var snapPos = (centerItem.top - (activeBounds.height/2));
+              snapAt('v', snapPos);
+            }
+
+            // ---------------------------------------- TOP / CENTER ----------------------------------------------------
+
+            if ((Math.abs(activeBounds.top - centerItem.top) < snapThreshold)) {
+              
+              showHorizontalGuide(centerItem.top, centerItem.left, itemBounds.width/2);
+              
+              var snapPos = (centerItem.top);
+              snapAt('v', snapPos);
+            }
+            // ---------------------------------------- BOTTOM / CENTER ----------------------------------------------------
+
+            if ((Math.abs(activeBounds.bottom - centerItem.top) < snapThreshold)) {
+              
+              showHorizontalGuide(centerItem.top, centerItem.left, itemBounds.width/2);
+              
+              var snapPos = (centerItem.top - activeBounds.height);
+              snapAt('v', snapPos);
+            }
+
+            // ---------------------------------------- CENTER / TOP ----------------------------------------------------
+
+            if ((Math.abs(centerBounds.top - itemBounds.top) < snapThreshold)) {
+              
+              showHorizontalGuide(itemBounds.top, itemBounds.left, itemBounds.width/2);
+              
+              var snapPos = (itemBounds.top - activeBounds.height/2);
+              snapAt('v', snapPos);
+            }
+
+            // ---------------------------------------- CENTER / BOTTOM ----------------------------------------------------
+
+            if ((Math.abs(centerBounds.top - itemBounds.bottom) < snapThreshold)) {
+              
+              showHorizontalGuide(itemBounds.bottom, itemBounds.left, itemBounds.width/2);
+            
+              var snapPos = (itemBounds.bottom - activeBounds.height/2);
+              snapAt('v', snapPos);
+            }
+
+  
           }
         });
 
+        // ---------------------------------- MAIN CONTAINER  -----------------------------------------------
+
         if (Math.abs(centerBounds.left - draggableContainer.clientWidth / 2) < snapThreshold) {
-          showVerticalGuide(draggableContainer.clientWidth / 2, (draggableContainer.clientHeight / 2), (draggableContainer.clientHeight / 2), true, 'n');
+          
+          showVerticalGuide(draggableContainer.clientWidth / 2, (draggableContainer.clientHeight / 2), (draggableContainer.clientHeight / 2), true);
+
+          var snapPos = (draggableContainer.clientWidth / 2 - activeBounds.width/2);
+          snapAt('h', snapPos);
+
         }
 
         if (Math.abs(centerBounds.top - draggableContainer.clientHeight / 2) < snapThreshold) {
-          showHorizontalGuide(draggableContainer.clientHeight / 2, draggableContainer.clientWidth / 2, (draggableContainer.clientWidth / 2), true, 'n');
+          
+          showHorizontalGuide(draggableContainer.clientHeight / 2, draggableContainer.clientWidth / 2, (draggableContainer.clientWidth / 2), true);
+        
+          var snapPos = (draggableContainer.clientHeight / 2 - activeBounds.height/2);
+          snapAt('v', snapPos);
+        
         }
       }
 
-      function showVerticalGuide(x, targetTop, size, isContainer = false, side = 'n', opacity = 1) {
-        const guide = createGuideLine(x, 0, draggableContainer.clientHeight, isContainer, side, opacity);
+      function showVerticalGuide(x, targetTop, size, isContainer = false) {
+        const guide = createGuideLine(x, 0, draggableContainer.clientHeight, isContainer);
         guides.push(guide);
 
         const distance = Math.abs(targetTop - activeItem.offsetTop - size);
         displayDistance(x, targetTop, distance);
       }
 
-      function showHorizontalGuide(y, targetLeft, size, isContainer = false, side = 'n', opacity = 1) {
-        const guide = createGuideLine(0, y, draggableContainer.clientWidth, isContainer, side, opacity);
+      function showHorizontalGuide(y, targetLeft, size, isContainer = false) {
+        const guide = createGuideLine(0, y, draggableContainer.clientWidth, isContainer);
         guides.push(guide);
 
         const distance = Math.abs(targetLeft - activeItem.offsetLeft - size);
         displayDistance(targetLeft, y, (distance));
       }
 
-      function createGuideLine(x, y, length, isContainer = false, side = 'n', opacity = 1) {
+      function createGuideLine(x, y, length, isContainer = false) {
         const guide = document.createElement("div");
         guide.classList.add("guide-line");
 
@@ -235,13 +357,7 @@
         }
 
         if (isContainer) {
-          guide.style.borderColor = "#ffff007b";
-        }
-        else
-        {
-          guide.style.borderColor = side;
-          guide.style.opacity = opacity;
-
+          guide.style.borderColor = "#6941BE";
         }
 
 
@@ -276,59 +392,7 @@
       
       }
 
-
-      function snapElement() {
-        const activeBounds = activeItem.getBoundingClientRect();
-        const centerBounds = {
-          left: activeBounds.left + activeBounds.width / 2,
-          top: activeBounds.top + activeBounds.height / 2,
-        };
-
-        draggableItems.forEach((item) => {
-          if (item !== activeItem) {
-            snapOnElement(item, activeBounds, centerBounds);
-          }
-        });
-
-        snapOnElement(draggableContainer, activeBounds, centerBounds);
-      }
-
-      function snapOnElement(_element, _activeBounds, _centerBounds) {
-        const itemBounds = _element.getBoundingClientRect();
-        const centerItem = {
-          left: itemBounds.left + itemBounds.width / 2,
-          top: itemBounds.top + itemBounds.height / 2,
-        };
-
-        itemBounds.top -= 1;
-        itemBounds.bottom -= 1;
-        centerItem.top -= 1;
-
-        if (Math.abs(_activeBounds.left - itemBounds.left) < snapThreshold) {
-          activeItem.style.left = itemBounds.left + "px";
-        }
-
-        if (Math.abs(_activeBounds.right - itemBounds.right) < snapThreshold) {
-          activeItem.style.left = itemBounds.right - _activeBounds.width + "px";
-        }
-
-        if (Math.abs(_activeBounds.top - itemBounds.top) < snapThreshold) {
-          activeItem.style.top = itemBounds.top + "px";
-        }
-
-        if (Math.abs(_activeBounds.bottom - itemBounds.bottom) < snapThreshold) {
-          activeItem.style.top = itemBounds.bottom - _activeBounds.height + "px";
-        }
-
-        if (Math.abs(_centerBounds.left - centerItem.left) < snapThreshold) {
-          activeItem.style.left = centerItem.left - _activeBounds.width / 2 + "px";
-        }
-
-        if (Math.abs(_centerBounds.top - centerItem.top) < snapThreshold) {
-          activeItem.style.top = centerItem.top - _activeBounds.height / 2 + "px";
-        }
-      }
-
+ 
       function displayDistance(targetLeft, targetTop, distance) {
         const distanceEl = document.createElement("div");
         distanceEl.classList.add("guide-distance");
