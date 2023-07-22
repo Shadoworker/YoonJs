@@ -7,6 +7,9 @@
   <style>
     body {
       margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .draggable-container {
@@ -26,16 +29,13 @@
 
     .guide-line {
       position: absolute;
-      border-left: 1px dashed #9E41BE;
-      border-right: 1px dashed #9E41BE;
-      border-top: 1px dashed #9E41BE;
-      border-bottom: 1px dashed #9E41BE;
+      border: 1px dashed #9E41BE;
       pointer-events: none;
     }
 
     .guide-distance {
       position: absolute;
-      background-color: #9E41BE;
+      background-color: #6941BE;
       color: white;
       padding: 2px 5px;
       font-size: 12px;
@@ -79,17 +79,25 @@
       function drag(e) {
         if (activeItem) {
           const { clientX, clientY } = e;
-          activeItem.style.left = clientX - activeItem.offsetWidth / 2 + "px";
-          activeItem.style.top = clientY - activeItem.offsetHeight / 2 + "px";
+
+          const containerBounds = draggableContainer.getBoundingClientRect();
+
+          const offsetX = clientX - containerBounds.left;
+          const offsetY = clientY - containerBounds.top;
+
+          activeItem.style.left = offsetX - activeItem.offsetWidth / 2 + "px";
+          activeItem.style.top = offsetY - activeItem.offsetHeight / 2 + "px";
 
           removeGuides();
           
-          showGuides();
-          // snapElement();
+          showGuides(containerBounds.left, containerBounds.top);
+
         }
       }
 
-      function showGuides() {
+      
+
+      function showGuides(x,y) {
         const activeBounds = activeItem.getBoundingClientRect();
         const centerBounds = {
           left: activeBounds.left + activeBounds.width / 2,
@@ -118,17 +126,17 @@
 
             if (Math.abs(activeBounds.left - itemBounds.left) < snapThreshold) {
               
-              showVerticalGuide(itemBounds.left, itemBounds.top, itemBounds.height);
+              showVerticalGuide((itemBounds.left - x), itemBounds.top, itemBounds.height);
               
-              var snapPos = itemBounds.left;
+              var snapPos = (itemBounds.left - x);
               snapAt('h', snapPos);
 
             }
             if (Math.abs(activeBounds.left - itemBounds.right) < snapThreshold) {
               
-              showVerticalGuide(itemBounds.right, itemBounds.top, itemBounds.width);
+              showVerticalGuide((itemBounds.right - x), itemBounds.top, itemBounds.width);
             
-              var snapPos = itemBounds.right;
+              var snapPos = (itemBounds.right - x);
               snapAt('h', snapPos);
 
             }
@@ -137,9 +145,9 @@
 
             if (Math.abs(activeBounds.left - centerItem.left) < snapThreshold) {
               
-              showVerticalGuide(centerItem.left, activeBounds.top, itemBounds.height);
+              showVerticalGuide((centerItem.left - x), activeBounds.top, itemBounds.height);
               
-              var snapPos = centerItem.left;
+              var snapPos = (centerItem.left - x);
               snapAt('h', snapPos);
             }
            
@@ -147,9 +155,9 @@
 
             if (Math.abs(centerBounds.left - itemBounds.left) < snapThreshold) {
               
-              showVerticalGuide(itemBounds.left, activeBounds.top, itemBounds.height);
+              showVerticalGuide((itemBounds.left - x), activeBounds.top, itemBounds.height);
               
-              var snapPos = (itemBounds.left - (activeBounds.width/2));
+              var snapPos = ((itemBounds.left - x) - (activeBounds.width/2));
               snapAt('h', snapPos);
             }
 
@@ -157,9 +165,9 @@
 
             if (Math.abs(activeBounds.right - centerItem.left) < snapThreshold) {
                   
-              showVerticalGuide(centerItem.left, activeBounds.top, itemBounds.height);
+              showVerticalGuide((centerItem.left - x), activeBounds.top, itemBounds.height);
                   
-                  var snapPos = (centerItem.left - activeBounds.width);
+                  var snapPos = ((centerItem.left - x) - activeBounds.width);
                   snapAt('h', snapPos);
                 }
 
@@ -168,9 +176,9 @@
 
             if (Math.abs(centerBounds.left - itemBounds.right) < snapThreshold) {
                 
-              showVerticalGuide(itemBounds.right, activeBounds.top, itemBounds.height);
+              showVerticalGuide((itemBounds.right - x), activeBounds.top, itemBounds.height);
                 
-                var snapPos = (itemBounds.right - (activeBounds.width/2));
+                var snapPos = ((itemBounds.right - x) - (activeBounds.width/2));
                 snapAt('h', snapPos);
               }
 
@@ -178,17 +186,17 @@
 
             if (Math.abs(activeBounds.right - itemBounds.right) < snapThreshold) {
               
-              showVerticalGuide(itemBounds.right, itemBounds.top, itemBounds.height);
+              showVerticalGuide((itemBounds.right - x), itemBounds.top, itemBounds.height);
                
-              var snapPos = (itemBounds.right-activeBounds.width);
+              var snapPos = ((itemBounds.right - x)-activeBounds.width);
               snapAt('h', snapPos);
 
             }
             if (Math.abs(activeBounds.right - itemBounds.left) < snapThreshold) {
               
-              showVerticalGuide(itemBounds.left, itemBounds.top, itemBounds.height);
+              showVerticalGuide((itemBounds.left - x), itemBounds.top, itemBounds.height);
               
-              var snapPos = (itemBounds.right - (itemBounds.width+activeBounds.width));
+              var snapPos = ((itemBounds.right - x) - (itemBounds.width+activeBounds.width));
               snapAt('h', snapPos);
 
             }
@@ -197,17 +205,17 @@
 
             if (Math.abs(activeBounds.top - itemBounds.top) < snapThreshold) {
               
-              showHorizontalGuide(itemBounds.top, itemBounds.left, itemBounds.width);
+              showHorizontalGuide((itemBounds.top - y), itemBounds.left, itemBounds.width);
               
-              var snapPos = itemBounds.top;
+              var snapPos = (itemBounds.top - y);
               snapAt('v', snapPos);
               
             }
             if (Math.abs(activeBounds.top - itemBounds.bottom) < snapThreshold) {
               
-              showHorizontalGuide(itemBounds.bottom, itemBounds.left, itemBounds.width);
+              showHorizontalGuide((itemBounds.bottom - y), itemBounds.left, itemBounds.width);
               
-              var snapPos = itemBounds.bottom;
+              var snapPos = (itemBounds.bottom - y);
               snapAt('v', snapPos);
             }
 
@@ -215,16 +223,16 @@
 
             if (Math.abs(activeBounds.bottom - itemBounds.bottom) < snapThreshold) {
               
-              showHorizontalGuide(itemBounds.bottom, itemBounds.left, -itemBounds.width);
+              showHorizontalGuide((itemBounds.bottom - y), itemBounds.left, -itemBounds.width);
 
-              var snapPos = (itemBounds.bottom - itemBounds.height + Math.abs(itemBounds.height-activeBounds.height));
+              var snapPos = ((itemBounds.bottom - y) - itemBounds.height + Math.abs(itemBounds.height-activeBounds.height));
               snapAt('v', snapPos);
             }
             if (Math.abs(activeBounds.bottom - itemBounds.top) < snapThreshold) {
               
-              showHorizontalGuide(itemBounds.top, itemBounds.top, -itemBounds.width);
+              showHorizontalGuide((itemBounds.top - y), itemBounds.top, -itemBounds.width);
 
-              var snapPos = (itemBounds.top - itemBounds.height + Math.abs(itemBounds.height-activeBounds.height));
+              var snapPos = ((itemBounds.top - y) - itemBounds.height + Math.abs(itemBounds.height-activeBounds.height));
               snapAt('v', snapPos);
             }
 
@@ -233,18 +241,18 @@
             if ((Math.abs(centerBounds.left - centerItem.left) < snapThreshold) && (centerBounds.top < centerItem.top)) //center by top
             {
               
-              showVerticalGuide(centerItem.left, centerItem.top, itemBounds.height/2);
+              showVerticalGuide((centerItem.left - x), centerItem.top, itemBounds.height/2);
               
-              var snapPos = (centerItem.left - (activeBounds.width/2));
+              var snapPos = ((centerItem.left - x) - (activeBounds.width/2));
               snapAt('h', snapPos);
             }
 
             if ((Math.abs(centerBounds.left - centerItem.left) < snapThreshold) && (centerBounds.top > centerItem.bottom)) //center by bottom
             {
               
-              showVerticalGuide(centerItem.left, centerItem.top, itemBounds.height/2);
+              showVerticalGuide((centerItem.left - x), centerItem.top, itemBounds.height/2);
               
-              var snapPos = (centerItem.left - (activeBounds.width/2));
+              var snapPos = ((centerItem.left - x) - (activeBounds.width/2));
               snapAt('h', snapPos);
             }
 
@@ -266,7 +274,7 @@
               snapAt('v', snapPos);
             }
 
-            // ---------------------------------------- TOP / CENTER ----------------------------------------------------
+            // // ---------------------------------------- TOP / CENTER ----------------------------------------------------
 
             if ((Math.abs(activeBounds.top - centerItem.top) < snapThreshold)) {
               
@@ -285,13 +293,13 @@
               snapAt('v', snapPos);
             }
 
-            // ---------------------------------------- CENTER / TOP ----------------------------------------------------
+            // // ---------------------------------------- CENTER / TOP ----------------------------------------------------
 
             if ((Math.abs(centerBounds.top - itemBounds.top) < snapThreshold)) {
               
-              showHorizontalGuide(itemBounds.top, itemBounds.left, itemBounds.width/2);
+              showHorizontalGuide((itemBounds.top - y), itemBounds.left, itemBounds.width/2);
               
-              var snapPos = (itemBounds.top - activeBounds.height/2);
+              var snapPos = ((itemBounds.top - y) - activeBounds.height/2);
               snapAt('v', snapPos);
             }
 
@@ -299,9 +307,9 @@
 
             if ((Math.abs(centerBounds.top - itemBounds.bottom) < snapThreshold)) {
               
-              showHorizontalGuide(itemBounds.bottom, itemBounds.left, itemBounds.width/2);
+              showHorizontalGuide((itemBounds.bottom - y), itemBounds.left, itemBounds.width/2);
             
-              var snapPos = (itemBounds.bottom - activeBounds.height/2);
+              var snapPos = ((itemBounds.bottom - y) - activeBounds.height/2);
               snapAt('v', snapPos);
             }
 
@@ -334,7 +342,7 @@
         const guide = createGuideLine(x, 0, draggableContainer.clientHeight, isContainer);
         guides.push(guide);
 
-        const distance = Math.abs(targetTop - activeItem.offsetTop - size);
+        const distance = Math.abs(targetTop - activeItem.offsetTop);
         displayDistance(x, targetTop, distance);
       }
 
@@ -342,7 +350,7 @@
         const guide = createGuideLine(0, y, draggableContainer.clientWidth, isContainer);
         guides.push(guide);
 
-        const distance = Math.abs(targetLeft - activeItem.offsetLeft - size);
+        const distance = Math.abs(targetLeft - activeItem.offsetLeft);
         displayDistance(targetLeft, y, (distance));
       }
 
@@ -357,7 +365,7 @@
         }
 
         if (isContainer) {
-          guide.style.borderColor = "#6941BE";
+          guide.style.borderColor = "#6941BE47";
         }
 
 
