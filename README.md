@@ -2,8 +2,7 @@
 
 Js based smart-guides library
 
-
-
+![Alt text](assets/image.png)
 
 ###### Walabok !
 
