@@ -50,6 +50,60 @@
     <!-- Add more draggable items here -->
   </div>
 
-  <script src="./yoon.js"></script>
+  <script src="./src/yoon.js"></script>
+
+  <script>
+
+    var yoon = new Yoon(".draggable-container", ".draggable-item");
+
+    let activeItem = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+      const draggableContainer = document.querySelector(".draggable-container");
+      const draggableItems = document.querySelectorAll(".draggable-item");
+
+      draggableItems.forEach((item) => {
+        item.addEventListener("mousedown", startDrag);
+        item.addEventListener("mouseup", stopDrag);
+      });
+
+      function startDrag(e) {
+        activeItem = e.target;
+        document.addEventListener("mousemove", drag);
+
+        yoon.startDrag(activeItem);
+
+      }
+
+      function stopDrag() {
+        document.removeEventListener("mousemove", drag);
+
+        yoon.stopDrag();
+
+      }
+
+      function drag(e) {
+        
+        const { clientX, clientY } = e;
+
+        const containerBounds = draggableContainer.getBoundingClientRect();
+
+        const offsetX = clientX - containerBounds.left;
+        const offsetY = clientY - containerBounds.top;
+
+        activeItem.style.left = offsetX - activeItem.offsetWidth / 2 + "px";
+        activeItem.style.top = offsetY - activeItem.offsetHeight / 2 + "px";
+
+        yoon.drag();
+
+      }
+
+
+    });
+
+
+  </script>
+  
 </body>
 </html>
