@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoon JS - Main</title>
+  <style>
+    body {
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .draggable-container {
+      position: relative;
+      width: 400px;
+      height: 300px;
+      border: 1px solid #ccc;
+    }
+
+    .draggable-item {
+      position: absolute;
+      background-color: #dca5a5;
+      padding: 10px;
+      cursor: move;
+      user-select: none;
+    }
+
+    .guide-line {
+      position: absolute;
+      border: 1px dashed #9E41BE;
+      pointer-events: none;
+    }
+
+    .guide-distance {
+      position: absolute;
+      background-color: #6941BE;
+      color: white;
+      padding: 2px 5px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="draggable-container">
+    <div class="draggable-item" style="left: 50px; top: 50px;">Element 1</div>
+    <div class="draggable-item" style="left: 220px; top: 100px;">Element 2</div>
+    <div class="draggable-item" style=" padding: 25px 20px; left: 170px; top: 200px;">Element 3</div>
+    <!-- Add more draggable items here -->
+  </div>
+
+  <script src="./yoon.js"></script>
+</body>
+</html>
